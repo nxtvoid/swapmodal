@@ -174,7 +174,6 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
                   popModal(item.name);
                 }
               }}
-              defaultOpen
             >
               <Suspense>
                 <Component {...(item.props as any)} />
