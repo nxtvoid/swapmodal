@@ -1,6 +1,6 @@
 {
   "name": "swapmodal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Handle shadcn dialog, sheet and drawer with ease",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -26,6 +26,7 @@
     "semantic-release": "standard-version",
     "build-storybook": "storybook build",
     "build-lib": "rm -rf lib && mkdir lib && rollup -c --bundleConfigAsCjs && cp -r ./dist ./lib && cp package.json LICENSE README.md ./lib",
+    "build-lib-win": "rimraf lib && node -e \"require('fs').mkdirSync('lib', {recursive: true})\" && rollup -c --bundleConfigAsCjs && node -e \"require('fs').cpSync('./dist', './lib/dist', {recursive: true})\" && node -e \"['package.json', 'LICENSE', 'README.md'].forEach(f => require('fs').copyFileSync(f, './lib/' + f))\"",
     "test": "jest -c jest/jest.config.js --verbose --passWithNoTests",
     "test:watch": "bun run test --watch",
     "test:clear": "bun run test --clearCache"
@@ -104,10 +105,12 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-test-renderer": "18.2.0",
+    "rimraf": "6.1.0",
     "rollup": "4.13.0",
     "rollup-plugin-dts": "6.1.0",
     "rollup-plugin-peer-deps-external": "2.2.4",
     "rollup-plugin-postcss": "4.0.2",
+    "rollup-preserve-directives": "1.1.3",
     "sass": "1.72.0",
     "sass-loader": "14.1.1",
     "standard-version": "9.5.0",

@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.1] (2025-11-02)
+
+### Bug Fixes
+
+* **factory**: Fixed drawer animation issue when stacking multiple drawers
+  - Removed `defaultOpen` prop that was causing animation conflicts
+  - Drawers now animate correctly when opened on top of other drawers
+  - Fixed issue where drawer would re-animate on click when stacked
+  - Better compatibility with Vaul ^1.1.2
+
+### Improvements
+
+* **build**: Added `exports` field to package.json for better module resolution
+* **build**: Preserved `"use client"` directive in compiled output for Next.js App Router
+* **workflow**: Updated to use Bun instead of pnpm
+
 ## [1.0.0] - SwapModal (2025-11-02)
 
 ### 🎉 Initial Release
