@@ -7,6 +7,8 @@ import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
+import preserveDirectives from 'rollup-preserve-directives';
+
 import { dts } from 'rollup-plugin-dts';
 
 const packageJson = require('./package.json');
@@ -44,6 +46,7 @@ export default [
         tsconfig: './tsconfig.build.json',
       }),
       terser(),
+      preserveDirectives.default(),
       postcss({
         plugins: [autoprefixer],
         modules: {
