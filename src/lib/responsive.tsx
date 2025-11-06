@@ -55,21 +55,21 @@ export function createResponsiveWrapper({ mobile, desktop, breakpoint = 640 }: O
   function Wrapper(props: WrapperProps) {
     const isMobile = useIsMobile();
     const WrapperComponent = isMobile ? mobile.Wrapper : desktop.Wrapper;
-    
+
     return (
       <ResponsiveContext.Provider value={isMobile}>
         <WrapperComponent {...props} />
       </ResponsiveContext.Provider>
     );
   }
-  
+
   function Content(props: ContentProps) {
     // Use the context value from Wrapper to ensure consistency
     const contextIsMobile = useContext(ResponsiveContext);
     // Fallback to hook if context is not available (shouldn't happen in normal usage)
     const hookIsMobile = useIsMobile();
     const isMobile = contextIsMobile !== undefined ? contextIsMobile : hookIsMobile;
-    
+
     const ContentComponent = isMobile ? mobile.Content : desktop.Content;
     return <ContentComponent {...props} />;
   }
