@@ -242,6 +242,8 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
     name?: T
   ) => void;
 
+  type CloseCallback<T extends ModalKeys> = (props: GetComponentProps<Modals[T]>, name?: T) => void;
+
   const onPushModal = <T extends ModalKeys>(name: T | '*', callback: EventCallback<T>) => {
     const fn: Handler<EventHandlers['change']> = (payload) => {
       if (payload.name === name) {
@@ -254,6 +256,39 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
     return () => emitter.off('change', fn);
   };
 
+  const onCloseModal = <T extends ModalKeys>(
+    name: T | '*',
+    callback: CloseCallback<T>,
+    options?: { delay?: number }
+  ) => {
+    const delay = options?.delay ?? 0;
+
+    const fn: Handler<EventHandlers['change']> = (payload) => {
+      if (!payload.open) {
+        if (payload.name === name) {
+          if (delay > 0) {
+            setTimeout(() => {
+              callback(payload.props as GetComponentProps<Modals[T]>, payload.name as T);
+            }, delay);
+          } else {
+            callback(payload.props as GetComponentProps<Modals[T]>, payload.name as T);
+          }
+        } else if (name === '*') {
+          if (delay > 0) {
+            setTimeout(() => {
+              callback(payload.props as any, payload.name as T);
+            }, delay);
+          } else {
+            callback(payload.props as any, payload.name as T);
+          }
+        }
+      }
+    };
+
+    emitter.on('change', fn);
+    return () => emitter.off('change', fn);
+  };
+
   return {
     ModalProvider,
     pushModal,
@@ -261,10 +296,21 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
     popAllModals,
     replaceWithModal,
     onPushModal,
+    onCloseModal,
     useOnPushModal: <T extends ModalKeys>(name: T | '*', callback: EventCallback<T>) => {
       useEffect(() => {
         return onPushModal(name, callback);
       }, [name, callback]);
+    },
+    useOnCloseModal: <T extends ModalKeys>(
+      name: T | '*',
+      callback: CloseCallback<T>,
+      options?: { delay?: number }
+    ) => {
+      useEffect(() => {
+        return onCloseModal(name, callback, options);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [name, callback, options?.delay]);
     },
   };
 }
