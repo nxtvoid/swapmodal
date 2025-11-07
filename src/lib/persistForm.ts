@@ -1,5 +1,11 @@
 import { useRef, useEffect, useMemo, useCallback } from 'react';
-import { UseFormReturn, FieldValues, DeepPartial } from 'react-hook-form';
+import {
+  useForm as useFormOriginal,
+  UseFormReturn,
+  FieldValues,
+  DeepPartial,
+  UseFormProps,
+} from 'react-hook-form';
 import { useFormStateStore } from './useFormStateStore';
 
 export type PersistFormOptions = {
@@ -15,46 +21,53 @@ export type PersistFormReturn<T extends FieldValues> = UseFormReturn<T> & {
   reset: (...args: Parameters<UseFormReturn<T>['reset']>) => void;
 };
 
+export type UsePersistFormOptions<T extends FieldValues> = UseFormProps<T> & {
+  key: string;
+  debounceMs?: number;
+};
+
 /**
- * Wrapper around react-hook-form's useForm that automatically persists form state
- * across component remounts (e.g., when switching between Dialog/Drawer)
+ * Hook that combines useForm with automatic state persistence
  *
- * Uses a subscription pattern to avoid unnecessary re-renders and includes
- * debouncing to optimize performance.
- *
- * @param formFactory - Function that returns the result of useForm
- * @param options - Configuration options
+ * @param options - Combined form configuration and persistence options
  *
  * @example
  * ```tsx
- * const form = usePersistForm(
- *   () => useForm({
- *     resolver: zodResolver(Schema),
- *     defaultValues: { name: '', description: '' }
- *   }),
- *   { key: 'unique-form-key', debounceMs: 300 }
- * )
+ * const form = usePersistForm({
+ *   key: 'create-folder-form',
+ *   resolver: zodResolver(Schema),
+ *   defaultValues: { name: '', description: '' }
+ * });
  *
  * // form.reset() will also clear the persisted state
  * ```
  */
 export function usePersistForm<T extends FieldValues>(
-  formFactory: () => UseFormReturn<T>,
-  options: PersistFormOptions
+  options: UsePersistFormOptions<T>
 ): PersistFormReturn<T> {
-  const { key, debounceMs = 300 } = options;
-  const form = formFactory();
+  const { key, debounceMs = 300, ...formConfig } = options;
+
   const store = useFormStateStore();
   const { setFormState, getFormState, clearFormState } = store;
   const isInitialMount = useRef(true);
   const hasRestored = useRef(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const initialDefaultValues = useMemo(() => {
+    const saved = getFormState(key);
+    return saved || formConfig.defaultValues;
+  }, [key, getFormState, formConfig.defaultValues]);
+
+  const form = useFormOriginal<T>({
+    ...formConfig,
+    defaultValues: initialDefaultValues as any,
+  });
+
   useEffect(() => {
     if (isInitialMount.current && !hasRestored.current) {
       const saved = getFormState(key);
       if (saved) {
-        form.reset(saved as T);
+        form.reset(saved as any);
         hasRestored.current = true;
       }
       isInitialMount.current = false;
