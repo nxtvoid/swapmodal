@@ -5,7 +5,6 @@ import { createContext, useContext, useLayoutEffect, useState } from 'react';
 type WrapperProps = DialogProps;
 type ContentProps = Omit<DialogContentProps, 'onAnimationEnd'> & {
   onAnimationEnd?: (...args: any[]) => void;
-  onClose?: () => void;
 };
 type Options = {
   mobile: {
@@ -20,12 +19,8 @@ type Options = {
 };
 
 export function createResponsiveWrapper({ mobile, desktop, breakpoint = 640 }: Options) {
-  // Create a context to share the isMobile state and onClose callback between Wrapper and Content
-  type ResponsiveContextValue = {
-    isMobile: boolean;
-    onClose?: () => void;
-  };
-  const ResponsiveContext = createContext<ResponsiveContextValue | undefined>(undefined);
+  // Create a context to share the isMobile state between Wrapper and Content
+  const ResponsiveContext = createContext<boolean | undefined>(undefined);
 
   function useIsMobile() {
     const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -62,26 +57,22 @@ export function createResponsiveWrapper({ mobile, desktop, breakpoint = 640 }: O
     const WrapperComponent = isMobile ? mobile.Wrapper : desktop.Wrapper;
 
     return (
-      <ResponsiveContext.Provider value={{ isMobile }}>
+      <ResponsiveContext.Provider value={isMobile}>
         <WrapperComponent {...props} />
       </ResponsiveContext.Provider>
     );
   }
 
   function Content(props: ContentProps) {
-    const { onClose, ...restProps } = props;
-
     // Use the context value from Wrapper to ensure consistency
-    const context = useContext(ResponsiveContext);
+    const contextIsMobile = useContext(ResponsiveContext);
     // Fallback to hook if context is not available (shouldn't happen in normal usage)
     const hookIsMobile = useIsMobile();
-    const isMobile = context?.isMobile !== undefined ? context.isMobile : hookIsMobile;
+    const isMobile = contextIsMobile !== undefined ? contextIsMobile : hookIsMobile;
 
     const ContentComponent = isMobile ? mobile.Content : desktop.Content;
 
-    // Pass onClose directly to the Content component
-    // This will work if the developer has updated their shadcn components
-    return <ContentComponent {...restProps} onClose={onClose} />;
+    return <ContentComponent {...props} />;
   }
 
   return {
