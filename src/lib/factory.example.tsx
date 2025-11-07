@@ -16,96 +16,104 @@ const Responsive = createResponsiveWrapper({
   breakpoint: 640,
 });
 
-const { onPushModal, useOnPushModal, pushModal, popAllModals, replaceWithModal, ModalProvider } =
-  createPushModal({
-    modals: {
-      ModalExample: () => {
-        useEffect(() => {
-          console.log('Mount ModalExample');
-          return () => {
-            console.log('Unmount ModalExample');
-          };
-        }, []);
-        return (
-          <DialogContent>
-            <div className="flex gap-4">
-              <button
-                className="bg-black text-white px-4 py-2 rounded-md"
-                onClick={() => pushModal('ModalExample')}
-              >
-                Open Modal
-              </button>
-              <button
-                className="bg-black text-white px-4 py-2 rounded-md"
-                onClick={() => pushModal('SheetExample')}
-              >
-                Open Sheet
-              </button>
-              <button
-                className="bg-black text-white px-4 py-2 rounded-md"
-                onClick={() => replaceWithModal('SheetExample')}
-              >
-                Replace with Sheet
-              </button>
-              <button
-                className="bg-black text-white px-4 py-2 rounded-md"
-                onClick={() => popAllModals()}
-              >
-                Close all!
-              </button>
-            </div>
-          </DialogContent>
-        );
-      },
-      SheetExample: () => {
-        return (
-          <SheetContent>
-            <div className="flex gap-4">
-              <button
-                className="bg-black text-white px-4 py-2 rounded-md"
-                onClick={() => pushModal('ModalExample')}
-              >
-                Open Modal
-              </button>
-              <button
-                className="bg-black text-white px-4 py-2 rounded-md"
-                onClick={() => pushModal('SheetExample')}
-              >
-                Open Sheet
-              </button>
-              <button
-                className="bg-black text-white px-4 py-2 rounded-md"
-                onClick={() => replaceWithModal('ModalExample')}
-              >
-                Replace with Modal
-              </button>
-            </div>
-          </SheetContent>
-        );
-      },
-      DrawerExample: {
-        Component: () => <DrawerContent>Drawer</DrawerContent>,
-        Wrapper: Drawer,
-      },
-      DrawerExampleWithProps: {
-        Component: ({ int }: { int: number }) => <DrawerContent>Drawer</DrawerContent>,
-        Wrapper: Drawer,
-      },
-      WithProps: (props: { num: number; str: string; bool: boolean }) => (
+const {
+  onPushModal,
+  useOnPushModal,
+  pushModal,
+  popAllModals,
+  replaceWithModal,
+  ModalProvider,
+  onCloseModal,
+  useOnCloseModal,
+} = createPushModal({
+  modals: {
+    ModalExample: () => {
+      useEffect(() => {
+        console.log('Mount ModalExample');
+        return () => {
+          console.log('Unmount ModalExample');
+        };
+      }, []);
+      return (
         <DialogContent>
-          <pre>{JSON.stringify(props, null, 2)}</pre>
+          <div className="flex gap-4">
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md"
+              onClick={() => pushModal('ModalExample')}
+            >
+              Open Modal
+            </button>
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md"
+              onClick={() => pushModal('SheetExample')}
+            >
+              Open Sheet
+            </button>
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md"
+              onClick={() => replaceWithModal('SheetExample')}
+            >
+              Replace with Sheet
+            </button>
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md"
+              onClick={() => popAllModals()}
+            >
+              Close all!
+            </button>
+          </div>
         </DialogContent>
-      ),
-      Dynamic: {
-        Component: () => (
-          <Responsive.Content>
-            Dynamic modal (Drawer on mobile and Dialog on desktop)
-          </Responsive.Content>
-        ),
-        Wrapper: Responsive.Wrapper,
-      },
+      );
     },
-  });
+    SheetExample: () => {
+      return (
+        <SheetContent>
+          <div className="flex gap-4">
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md"
+              onClick={() => pushModal('ModalExample')}
+            >
+              Open Modal
+            </button>
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md"
+              onClick={() => pushModal('SheetExample')}
+            >
+              Open Sheet
+            </button>
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md"
+              onClick={() => replaceWithModal('ModalExample')}
+            >
+              Replace with Modal
+            </button>
+          </div>
+        </SheetContent>
+      );
+    },
+    DrawerExample: {
+      Component: () => <DrawerContent>Drawer</DrawerContent>,
+      Wrapper: Drawer,
+    },
+    DrawerExampleWithProps: {
+      Component: ({ int }: { int: number }) => <DrawerContent>Drawer</DrawerContent>,
+      Wrapper: Drawer,
+    },
+    WithProps: (props: { num: number; str: string; bool: boolean }) => (
+      <DialogContent>
+        <pre>{JSON.stringify(props, null, 2)}</pre>
+      </DialogContent>
+    ),
+    Dynamic: {
+      Component: () => (
+        <Responsive.Content>
+          Dynamic modal (Drawer on mobile and Dialog on desktop)
+        </Responsive.Content>
+      ),
+      Wrapper: Responsive.Wrapper,
+    },
+  },
+});
 
 export function FactoryExample() {
   useEffect(() => {
@@ -116,6 +124,20 @@ export function FactoryExample() {
         props,
       });
     });
+
+    // Example of onCloseModal with immediate execution
+    onCloseModal('ModalExample', (props, name) => {
+      console.log('Modal closed immediately!', { name, props });
+    });
+
+    // Example of onCloseModal with delay
+    onCloseModal(
+      'SheetExample',
+      (props, name) => {
+        console.log('Sheet closed after 500ms delay!', { name, props });
+      },
+      { delay: 500 }
+    );
   }, []);
 
   useOnPushModal('ModalExample', (open, props, name) => {
@@ -125,6 +147,20 @@ export function FactoryExample() {
   useOnPushModal('*', (open, props, name) => {
     console.log('useOnPushModal - *', { open, props, name });
   });
+
+  // Example of useOnCloseModal hook
+  useOnCloseModal('Dynamic', (props, name) => {
+    console.log('Dynamic modal closed!', { name, props });
+  });
+
+  // Example with delay using the hook
+  useOnCloseModal(
+    'DrawerExample',
+    (props, name) => {
+      console.log('Drawer closed after 300ms!', { name, props });
+    },
+    { delay: 300 }
+  );
 
   // This will never happen, just testing types
   if (!ModalProvider) {
