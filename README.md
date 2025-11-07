@@ -190,6 +190,70 @@ const unsub = onPushModal('*', (open, props, name) => {
 })
 ```
 
+#### 7. Listening to modal close events
+
+You can listen specifically to when modals close using `useOnCloseModal` (inside react component) or `onCloseModal` (globally). This is useful for cleanup, analytics, or triggering actions after a modal closes.
+
+The callback receives the modal's props and name. You can optionally specify a delay (in milliseconds) before the callback executes.
+
+**Inside a component**
+
+```tsx
+import { useCallback } from 'react'
+import { useOnCloseModal } from '@/modals'
+
+// file: a-react-component.tsx
+export default function ReactComponent() {
+  // Listen to any modal close
+  useOnCloseModal('*', 
+    useCallback((props, name) => {
+      console.log('Modal closed:', name);
+      console.log('Final props:', props);
+    }, [])
+  )
+  
+  // Listen to specific modal close with delay
+  useOnCloseModal(
+    'ModalExample',
+    useCallback((props) => {
+      console.log('ModalExample closed after 300ms');
+      // Perform cleanup or analytics
+    }, []),
+    { delay: 300 } // Optional delay in milliseconds
+  )
+}
+```
+
+**Globally**
+
+```ts
+import { onCloseModal } from '@/modals'
+
+// Immediate execution on close
+const unsub = onCloseModal('SheetExample', (props, name) => {
+  console.log('Sheet closed!', props)
+})
+
+// With delay
+const unsub2 = onCloseModal(
+  'DrawerExample',
+  (props, name) => {
+    console.log('Drawer closed after delay!', props)
+  },
+  { delay: 500 }
+)
+
+// Don't forget to unsubscribe when needed
+unsub()
+unsub2()
+```
+
+**Common use cases:**
+- Analytics tracking when users close modals
+- Cleanup operations after modal dismissal
+- Triggering animations or state updates
+- Form data persistence or validation
+
 #### Responsive rendering (mobile/desktop)
 
 In some cases you want to show a drawer on mobile and a dialog on desktop. This is possible and we have created a helper function to get you going faster. `createResponsiveWrapper` 💪 
