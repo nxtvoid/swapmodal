@@ -1,4 +1,5 @@
 import { useRef, useEffect, useMemo, useCallback } from 'react';
+import { useFormStateStore } from './useFormStateStore';
 import {
   useForm as useFormOriginal,
   UseFormReturn,
@@ -6,7 +7,6 @@ import {
   DeepPartial,
   UseFormProps,
 } from 'react-hook-form';
-import { useFormStateStore } from './useFormStateStore';
 
 export type PersistFormOptions = {
   key: string;
@@ -52,6 +52,7 @@ export function usePersistForm<T extends FieldValues>(
   const isInitialMount = useRef(true);
   const hasRestored = useRef(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isResetting = useRef(false);
 
   const initialDefaultValues = useMemo(() => {
     const saved = getFormState(key);
@@ -76,6 +77,10 @@ export function usePersistForm<T extends FieldValues>(
 
   const saveFormState = useCallback(
     (values: DeepPartial<T>) => {
+      if (isResetting.current) {
+        return;
+      }
+
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
@@ -110,6 +115,8 @@ export function usePersistForm<T extends FieldValues>(
   const reset = useMemo(
     () =>
       ((...args: Parameters<UseFormReturn<T>['reset']>) => {
+        isResetting.current = true;
+
         if (debounceTimerRef.current) {
           clearTimeout(debounceTimerRef.current);
           debounceTimerRef.current = null;
@@ -118,6 +125,10 @@ export function usePersistForm<T extends FieldValues>(
         form.reset(...args);
         clearFormState(key);
         hasRestored.current = false;
+
+        setTimeout(() => {
+          isResetting.current = false;
+        }, 100);
       }) as UseFormReturn<T>['reset'],
     [form, key, clearFormState]
   );

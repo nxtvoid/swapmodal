@@ -1,6 +1,6 @@
 {
   "name": "swapmodal",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Handle shadcn dialog, sheet and drawer with ease",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -71,6 +71,8 @@
     "@storybook/react": "8.0.0",
     "@storybook/react-vite": "8.0.0",
     "@storybook/test": "8.0.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/jest": "29.5.12",
     "@types/node": "20.11.28",
     "@types/react": "18.2.66",
@@ -129,7 +131,7 @@
     "@radix-ui/react-dialog": "^1.0.0",
     "react": "^16.12.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0",
     "react-dom": "^16.12.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0",
-    "zustand": "^4.0.0 || ^5.0.0"
+    "zustand": "^5.0.8"
   },
   "peerDependenciesMeta": {
     "zustand": {

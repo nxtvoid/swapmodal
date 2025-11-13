@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.3] (2025-11-13)
+
+### Features
+
+* **forms**: Added `usePersistForm` hook for form state persistence
+  - Automatically persists form state using Zustand
+  - Configurable debounce to optimize performance
+  - Restores form values on component remount
+  - Proper reset functionality that clears persisted state
+  - Support for multiple independent forms with unique keys
+
+* **store**: Added `useFormStateStore` for managing form state
+  - Global store for form state management
+  - Methods: `setFormState`, `getFormState`, `clearFormState`, `clearAllFormStates`
+
+### Improvements
+
+* **testing**: Added comprehensive test suite for `usePersistForm`
+  - Tests for persistence, restoration, reset, debounce, and multiple forms
+  - Organized tests in `__tests__` folder structure
+
+### Dependencies
+
+* Added `@testing-library/react` and `@testing-library/react-hooks` as dev dependencies
+* Added `zustand` as peer dependency (optional for form persistence features)
+
 ## [1.0.1] (2025-11-02)
 
 ### Bug Fixes

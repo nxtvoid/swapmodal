@@ -60,6 +60,8 @@ const storeConfig = (set: any, get: any) => ({
 
 const useFormStateStoreHook = (create as any)()(storeConfig);
 
+export const formStateStore = useFormStateStoreHook;
+
 export function useFormStateStore(): FormStateStore {
   return useFormStateStoreHook();
 }
