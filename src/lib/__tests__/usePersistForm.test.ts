@@ -333,4 +333,160 @@ describe('usePersistForm', () => {
       expect(storeAfterReset.formStates['form-2']).toBeTruthy();
     });
   });
+
+  describe('getPersistValues and clearPersist', () => {
+    it('should return null when no values are persisted', () => {
+      const { result } = renderHook(() =>
+        usePersistForm({
+          key: 'test-form-get-persist',
+          defaultValues: { name: '' },
+        })
+      );
+
+      expect(result.current.getPersistValues()).toBeNull();
+    });
+
+    it('should return persisted values after changes', async () => {
+      const { result } = renderHook(() =>
+        usePersistForm({
+          key: 'test-form-get-persist-values',
+          defaultValues: { name: '', email: '' },
+          debounceMs: 50,
+        })
+      );
+
+      // Set values
+      act(() => {
+        result.current.setValue('name', 'John');
+        result.current.setValue('email', 'john@example.com');
+      });
+
+      // Wait for persistence
+      await waitFor(
+        () => {
+          const persisted = result.current.getPersistValues();
+          expect(persisted).toBeTruthy();
+        },
+        { timeout: 200 }
+      );
+
+      const persisted = result.current.getPersistValues();
+      expect(persisted).toEqual({
+        name: 'John',
+        email: 'john@example.com',
+      });
+    });
+
+    it('should clear persisted values with clearPersist', async () => {
+      const { result } = renderHook(() =>
+        usePersistForm({
+          key: 'test-form-clear-persist',
+          defaultValues: { name: '' },
+          debounceMs: 50,
+        })
+      );
+
+      // Set a value
+      act(() => {
+        result.current.setValue('name', 'test');
+      });
+
+      // Wait for persistence
+      await waitFor(
+        () => {
+          expect(result.current.getPersistValues()).toBeTruthy();
+        },
+        { timeout: 200 }
+      );
+
+      // Verify it's persisted
+      expect(result.current.getPersistValues()).toEqual({ name: 'test' });
+
+      // Clear persist
+      act(() => {
+        result.current.clearPersist();
+      });
+
+      // Should be null now
+      expect(result.current.getPersistValues()).toBeNull();
+
+      // Form values should remain unchanged
+      expect(result.current.getValues().name).toBe('test');
+    });
+
+    it('should show difference between form values and persisted values', async () => {
+      const { result } = renderHook(() =>
+        usePersistForm({
+          key: 'test-form-diff',
+          defaultValues: { name: '' },
+          debounceMs: 100,
+        })
+      );
+
+      // Set initial value
+      act(() => {
+        result.current.setValue('name', 'initial');
+      });
+
+      // Wait for persistence
+      await waitFor(
+        () => {
+          expect(result.current.getPersistValues()).toBeTruthy();
+        },
+        { timeout: 200 }
+      );
+
+      expect(result.current.getPersistValues()).toEqual({ name: 'initial' });
+
+      // Change value but don't wait for debounce
+      act(() => {
+        result.current.setValue('name', 'changed');
+      });
+
+      // Form has new value
+      expect(result.current.getValues().name).toBe('changed');
+
+      // But persisted still has old value (debounce not finished)
+      expect(result.current.getPersistValues()).toEqual({ name: 'initial' });
+
+      // Wait for debounce to complete
+      await waitFor(
+        () => {
+          const persisted = result.current.getPersistValues();
+          expect(persisted?.name).toBe('changed');
+        },
+        { timeout: 200 }
+      );
+    });
+
+    it('should return null after reset', async () => {
+      const { result } = renderHook(() =>
+        usePersistForm({
+          key: 'test-form-reset-persist',
+          defaultValues: { name: '' },
+          debounceMs: 50,
+        })
+      );
+
+      // Set value and wait for persistence
+      act(() => {
+        result.current.setValue('name', 'test');
+      });
+
+      await waitFor(
+        () => {
+          expect(result.current.getPersistValues()).toBeTruthy();
+        },
+        { timeout: 200 }
+      );
+
+      // Reset
+      act(() => {
+        result.current.reset();
+      });
+
+      // Should be null after reset
+      expect(result.current.getPersistValues()).toBeNull();
+    });
+  });
 });

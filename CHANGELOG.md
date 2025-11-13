@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.4] (2025-11-13)
+
+### Features
+
+* **forms**: Added `getPersistValues()` method to `usePersistForm`
+  - Returns persisted values from Zustand store or `null` if nothing is stored
+  - Useful for debugging and checking if draft values exist
+  - Can be used to detect unsaved changes
+
+* **forms**: Added `clearPersist()` method to `usePersistForm`
+  - Manually clears persisted state from Zustand without resetting form values
+  - More explicit alternative to accessing store directly
+
+### Improvements
+
+* **testing**: Added 5 new tests for `getPersistValues()` and `clearPersist()`
+  - Tests cover null returns, persisted values retrieval, manual clearing
+  - Tests show difference between form values and persisted values during debounce
+
 ## [1.0.3] (2025-11-13)
 
 ### Features

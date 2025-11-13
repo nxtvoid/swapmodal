@@ -19,6 +19,8 @@ export type PersistFormOptions = {
 
 export type PersistFormReturn<T extends FieldValues> = UseFormReturn<T> & {
   reset: (...args: Parameters<UseFormReturn<T>['reset']>) => void;
+  getPersistValues: () => DeepPartial<T> | null;
+  clearPersist: () => void;
 };
 
 export type UsePersistFormOptions<T extends FieldValues> = UseFormProps<T> & {
@@ -133,8 +135,32 @@ export function usePersistForm<T extends FieldValues>(
     [form, key, clearFormState]
   );
 
+  /**
+   * Retrieves the persisted form state for the given key.
+   * @example
+   * ```tsx
+   * form.getPersistValues();
+   * ```
+   */
+  const getPersistValues = useCallback(() => {
+    return getFormState(key) as DeepPartial<T> | null;
+  }, [key, getFormState]);
+
+  /**
+   * Clears the persisted form state for the given key.
+   * @example
+   * ```tsx
+   * form.clearPersist();
+   * ```
+   */
+  const clearPersist = useCallback(() => {
+    clearFormState(key);
+  }, [key, clearFormState]);
+
   return {
     ...form,
     reset,
+    getPersistValues,
+    clearPersist,
   } as PersistFormReturn<T>;
 }
