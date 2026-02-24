@@ -1,9 +1,9 @@
-import { DialogContentProps, DialogProps } from '@radix-ui/react-dialog';
+import { Dialog } from 'radix-ui';
 import * as React from 'react';
 import { createContext, useContext, useLayoutEffect, useState } from 'react';
 
-type WrapperProps = DialogProps;
-type ContentProps = Omit<DialogContentProps, 'onAnimationEnd'> & {
+type WrapperProps = Dialog.DialogProps;
+type ContentProps = Omit<Dialog.DialogContentProps, 'onAnimationEnd'> & {
   onAnimationEnd?: (...args: any[]) => void;
 };
 type Options = {
